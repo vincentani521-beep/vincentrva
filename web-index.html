@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AquaNet: Community Smart Water Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-main: #cbe3f9;
+            --sidebar-bg: #1a4274;
+            --sidebar-active: #0f2d52;
+            --card-dark: #112846;
+            --card-light: #ffffff;
+            --text-light: #ffffff;
+            --text-dark: #333333;
+            --accent-red: #d93838;
+            --accent-green: #2ecc71;
+            --accent-yellow: #f1c40f;
+            --graph-blue: #0f3d70;
+            --graph-hover: #3498db;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            background-color: var(--bg-main);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- SIDEBAR STYLE --- */
+        .sidebar {
+            width: 240px;
+            background-color: var(--sidebar-bg);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px 0;
+            transition: all 0.3s ease;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+
+        .logo-area i, .footer-logo i {
+            color: #3498db;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .nav-links {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-links li a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: #a3c2e0;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-left: 4px solid transparent;
+        }
+
+        /* Sidebar Hover Animations */
+        .nav-links li a:hover {
+            color: var(--text-light);
+            background-color: var(--sidebar-active);
+            border-left: 4px solid #3498db;
+            padding-left: 28px;
+        }
+
+        .nav-links li a i {
+            margin-right: 15px;
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-links li a:hover i {
+            transform: scale(1.2) rotate(-5deg);
+            color: #5dade2;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 18px;
+            font-weight: bold;
+            gap: 8px;
+        }
+
+        /* --- MAIN CONTENT AREA --- */
+        .main-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* Top Header */
+        .header {
+            background-color: var(--sidebar-bg);
+            color: var(--text-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .header-profile {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+            font-size: 20px;
+            transition: transform 0.2s ease;
+        }
+
+        .notification-bell:hover {
+            transform: scale(1.1);
+            animation: ring 0.5s ease;
+        }
+
+        .avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            transition: ring 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .avatar:hover {
+            border-color: #5dade2;
+            box-shadow: 0 0 8px rgba(93, 173, 226, 0.6);
+        }
+
+        /* Dashboard Grid Layout */
+        .dashboard-content {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        /* --- KPI TOP CARDS --- */
+        .kpi-card {
+            border-radius: 15px;
+            padding: 20px;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .kpi-dark { background-color: var(--card-dark); }
+        
+        .kpi-icon {
+            font-size: 35px;
+            transition: transform 0.3s ease;
+        }
+        .kpi-card:hover .kpi-icon {
+            transform: scale(1.15);
+        }
+
+        .kpi-info h3 {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #a3c2e0;
+            margin-bottom: 5px;
+        }
+
+        .kpi-info p {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .kpi-info span {
+            font-size: 12px;
+            display: block;
+            margin-top: 4px;
+        }
+
+        .text-green { color: var(--accent-green); }
+        .text-red { color: var(--accent-red); font-weight: bold; }
+
+        /* --- MAIN BODY WIDGETS --- */
+        .widget {
+            background: var(--card-light);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .widget-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+        }
+
+        /* --- COPIED ADVANCED GRAPH STYLE --- */
+        .graph-wrapper {
+            display: flex;
+            position: relative;
+            height: 170px;
+            padding-left: 35px;
+            margin-top: 10px;
+        }
+
+        .y-axis-labels {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #777;
+            text-align: right;
+            width: 25px;
+            font-weight: 500;
+        }
+
+        .grid-lines-container {
+            position: absolute;
+            left: 35px;
+            right: 0;
+            top: 4px;
+            height: 136px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            pointer-events: none;
+        }
+
+        .grid-line {
+            border-top: 1px solid #333333;
+            width: 100%;
+            opacity: 0.8;
+        }
+
+        .chart-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            width: 100%;
+            height: 140px;
+            z-index: 1;
+            padding-top: 0;
+        }
+
+        .bar-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            height: 100%;
+            justify-content: flex-end;
+        }
+
+        .bar {
+            width: 26px;
+            background-color: var(--graph-blue);
+            border-radius: 3px 3px 0 0;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+        }
+
+        /* Lively Hover effect on Bars */
+        .bar-wrapper:hover .bar {
+            background-color: var(--graph-hover);
+            transform: scaleX(1.1);
+            box-shadow: 0 0 12px rgba(52, 152, 219, 0.6);
+        }
+
+        .bar-label {
+            font-size: 11px;
+            color: #555;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+
+        /* Map Box Config */
+        .map-box {
+            grid-row: span 2;
+            position: relative;
+            padding: 0;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+        .map-box:hover {
+            transform: scale(1.01);
+        }
+
+        .map-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Miniature Map Widget */
+        .mini-map {
+            padding: 0;
+            overflow: hidden;
+            height: 190px;
+        }
+        .mini-map img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* List Items Styling (Infrastructure & Alerts) */
+        .status-list {
+            list-style: none;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 5px;
+            border-bottom: 1px solid #edf2f7;
+            cursor: pointer;
+            transition: background 0.2s ease, padding-left 0.2s ease;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-item:hover {
+            background-color: #f7fafc;
+            padding-left: 10px;
+        }
+
+        .status-name {
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+
+        .status-value {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-value i {
+            font-size: 12px;
+            color: #ccc;
+            transition: transform 0.2s ease;
+        }
+
+        .status-item:hover .status-value i {
+            transform: translateX(3px);
+            color: var(--sidebar-bg);
+        }
+
+        /* Notification Alerts */
+        .alert-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 5px;
+            border-bottom: 1px solid #edf2f7;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .alert-item:hover {
+            background-color: #f7fafc;
+        }
+
+        .alert-icon {
+            font-size: 20px;
+            margin-top: 3px;
+        }
+
+        .alert-desc h4 {
+            font-size: 13px;
+            font-weight: bold;
+            color: #111;
+        }
+
+        .alert-desc p {
+            font-size: 11px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        /* --- KEYFRAME ANIMATIONS --- */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes ring {
+            0% { transform: rotate(0); }
+            20% { transform: rotate(15deg); }
+            40% { transform: rotate(-15deg); }
+            60% { transform: rotate(10deg); }
+            80% { transform: rotate(-10deg); }
+            100% { transform: rotate(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div>
+            <div class="logo-area">
+                <i class="fa-solid fa-droplet"></i> AquaNet
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" class="active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
+                <li><a href="#"><i class="fa-solid fa-map-location-dot"></i> Maps</a></li>
+                <li><a href="#"><i class="fa-solid fa-briefcase"></i> Assets</a></li>
+                <li><a href="#"><i class="fa-solid fa-file-invoice"></i> Reports</a></li>
+                <li><a href="#"><i class="fa-solid fa-bell"></i> Alerts</a></li>
+            </ul>
+        </div>
+        <div class="footer-logo">
+            <i class="fa-solid fa-droplet"></i> AquaNet
+        </div>
+    </div>
+
+    <div class="main-container">
+        
+        <div class="header">
+            <h1>AquaNet: Community Smart Water Management</h1>
+            <div class="header-profile">
+                <div class="notification-bell">
+                    <i class="fa-solid fa-bell"></i>
+                </div>
+                <img class="avatar" src="https://images.rawpixel.com/image_png_social_square/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTA4L2pvYjEwMzktZWxlbWVudC0yNS0zOTMucG5n.png" alt="User profile icon">
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+
+            <div class="kpi-card kpi-dark">
+                <div class="kpi-icon"><i class="fa-solid fa-glass-water" style="color: #3498db;"></i></div>
+                <div class="kpi-info">
+                    <h3>Reservoir Levels (Live)</h3>
+                    <p>88% <span style="font-size: 14px; display:inline; color:#aaa;">/ 65,000m³</span></p>
+                </div>
+            </div>
+
+            <div class="kpi-card kpi-dark">
+                <div class="kpi-icon"><i class="fa-solid fa-faucet-drip" style="color: #5dade2;"></i></div>
+                <div class="kpi-info">
+                    <h3>Today's Consumption</h3>
+                    <p>4200 m³ <span class="text-green" style="display:inline;">(+5% avg)</span></p>
+                </div>
+            </div>
+
+            <div class="kpi-card kpi-dark">
+                <div class="kpi-icon"><i class="fa-solid fa-triangle-exclamation" style="color: var(--accent-red); animation: float 2s infinite;"></i></div>
+                <div class="kpi-info">
+                    <h3>Active Leaks Alerts</h3>
+                    <p class="text-red">3 <span style="font-size: 12px; display:inline; color:var(--accent-red);">(Critical)</span></p>
+                </div>
+            </div>
+
+            <div class="widget">
+                <div class="widget-title">Weekly Water Usage Trends</div>
+                
+                <div class="graph-wrapper">
+                    <div class="y-axis-labels">
+                        <div>250</div>
+                        <div>200</div>
+                        <div>150</div>
+                        <div>100</div>
+                        <div>50</div>
+                        <div>0</div>
+                    </div>
+
+                    <div class="grid-lines-container">
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line" style="border-top: 2px solid #333;"></div>
+                    </div>
+
+                    <div class="chart-container">
+                        <div class="bar-wrapper">
+                            <div class="bar" style="height: 44%;"></div>
+                            <div class="bar-label">Mon</div>
+                        </div>
+                        <div class="bar-wrapper">
+                            <div class="bar" style="height: 60%;"></div>
+                            <div class="bar-label">Tue</div>
+                        </div>
+                        <div class="bar-wrapper">
+                            <div class="bar" style="height: 84%;"></div>
+                            <div class="bar-label">Wed</div>
+                        </div>
+                        <div class="bar-wrapper">
+                            <div class="bar" style="height: 64%;"></div>
+                            <div class="bar-label">Thu</div>
+                        </div>
+                        <div class="bar-wrapper">
+                            <div class="bar" style="height: 84%;"></div>
+                            <div class="bar-label">Fri</div>
+                        </div>
+                        <div class="bar-wrapper">
+                            <div class="bar" style="height: 52%;"></div>
+                            <div class="bar-label">Sat</div>
+                        </div>
+                        <div class="bar-wrapper">
+                            <div class="bar" style="height: 74%;"></div>
+                            <div class="bar-label">Sun</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="map-box">
+                <img src="c:\Users\HP\OneDrive\Desktop\b4a695e1-4027-4ce0-b5c7-d7db8485124e.png" alt="Community GIS Map View">
+            </div>
+
+            <div class="widget">
+                <div class="widget-title">Infrastructure Status</div>
+                <ul class="status-list">
+                    <li class="status-item">
+                        <span class="status-name">Main Line A</span>
+                        <span class="status-value" style="color: var(--accent-green);">Stable <i class="fa-solid fa-chevron-right"></i></span>
+                    </li>
+                    <li class="status-item">
+                        <span class="status-name">Reservoir 1</span>
+                        <span class="status-value" style="color: #3498db;">Filling <i class="fa-solid fa-chevron-right"></i></span>
+                    </li>
+                    <li class="status-item">
+                        <span class="status-name">Sensor B</span>
+                        <span class="status-value" style="color: var(--accent-green);">Online <i class="fa-solid fa-chevron-right"></i></span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="widget mini-map">
+                <img src="c:\Users\HP\OneDrive\Desktop\Water-Tap-Google-Maps-NL-1.jpg" alt="Regional Mini Map Layout">
+            </div>
+
+            <div class="widget">
+                <div class="widget-title">Community Alerts & Notifications</div>
+                
+                <div class="alert-item">
+                    <div class="alert-icon" style="color: var(--accent-red);"><i class="fa-solid fa-bell"></i></div>
+                    <div class="alert-desc">
+                        <h4>Community Alerts & normal</h4>
+                        <p>6 hours ago</p>
+                    </div>
+                </div>
+
+                <div class="alert-item">
+                    <div class="alert-icon" style="color: var(--accent-yellow);"><i class="fa-solid fa-volume-high"></i></div>
+                    <div class="alert-desc">
+                        <h4>Community alerts and Sensor cct discussing</h4>
+                        <p>6 hours ago</p>
+                    </div>
+                </div>
+
+                <div class="alert-item">
+                    <div class="alert-icon" style="color: #f39c12;"><i class="fa-solid fa-bell-ring"></i></div>
+                    <div class="alert-desc">
+                        <h4>Community Alerts & Community Notifications</h4>
+                        <p>6 hours ago</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
+
